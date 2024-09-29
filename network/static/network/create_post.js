@@ -69,24 +69,17 @@ function fetch_posts_and_display() {
 }
 
 
-function print_to_console(element) {
-    console.log(element);
-}
-
-
 function display_posts(posts) {
     posts_div = document.querySelector('#posts_div');
     posts_div.innerHTML = "";
-    console.log("Type of posts:");
-    console.log(typeof posts);
-
 
     posts.forEach(post => {
         
         posts_div.innerHTML = posts_div.innerHTML +     
         '<div><h4>' + post.content + '</h4><div> By: ' + post.creator + 
-        ' on ' + post.date + '</div><div> Likes: ' + post.likes + '</div></div><br>';
+        ' on ' + post.date.substring(0,10) + 
+        ', ' + post.date.substring(11,16) + 
+        '</div><div> Likes: ' + post.likes + '</div></div><br>';
 
     });
-    console.log(posts_div);
 }
