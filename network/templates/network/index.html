@@ -1,23 +1,28 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
 {% if user.is_authenticated %}
 <form action="{% url 'index' %}" method="post">
     {% csrf_token %}
     <div class="form-group">
-        <textarea class="form-control" autofocus type="text" name="content" placeholder="Type your post."></textarea>
+        <textarea class="form-control" autofocus type="text" id="post_content" name="post_content" placeholder="Type your post."></textarea>
     </div>
     <input class="btn btn-primary" type="submit" value="Create post">
 </form>
+{{ request.user.id|json_script:"user_id" }}
 {% endif %}
-<ul>
-    {% for post in posts %}
+<ul id="posts_div">
+    <!-- {% for post in posts %}
     <hr>
-    <li> {{ post.content }} <div><br> By: {{ post.creator }} on {{ post.date }}. Likes: {{ post.likes }} </div></li>
+    <li> {{ post.content }} <div><br> By: {{ post.creator }} on {{ post.date }} Likes: {{ post.likes }} </div></li>
 
     {% empty %}
     <li>No posts yet.</li>
 
-    {% endfor %}
+    {% endfor %} -->
 </ul>
+<script src="{% static 'network/create_post.js' %}"></script>
+<script>let CSRF_TOKEN = '{{ csrf_token }}';</script>
+<script>const init_posts = '{{ posts }}';</script>
 {% endblock %}
