@@ -111,5 +111,6 @@ def load_posts(request):
     posts = list(posts)
     for element in posts:
          element['likes'] = len(Like.objects.filter(post_liked=element['id']))
-
+         element['creator'] = User.objects.get(pk=element['creator_id']).username
+         
     return JsonResponse({"posts": posts}, status=200)

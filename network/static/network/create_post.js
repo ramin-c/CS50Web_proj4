@@ -84,8 +84,8 @@ function display_posts(posts) {
     posts.forEach(post => {
         
         posts_div.innerHTML = posts_div.innerHTML +     
-        '<li>' + post.content + '<div> By: ' + post.creator + 
-        'on ' + post.date + ' Likes: ' + post.likes + '</div></li><br>';
+        '<div><h4>' + post.content + '</h4><div> By: ' + post.creator + 
+        ' on ' + post.date + '</div><div> Likes: ' + post.likes + '</div></div><br>';
 
     });
     console.log(posts_div);
