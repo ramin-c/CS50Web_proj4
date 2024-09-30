@@ -6,8 +6,18 @@
     <h1>{{ message }}</h1>
 {% endif %}
 {% if user.is_authenticated %}
-
-{{ request.user.username|json_script:"username" }}
+<form action="{% url 'user_profile' profile %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+    {% if following %}
+    <input class="btn btn-primary" type="submit" value="Unfollow {{ profile }}">
+    <input class="btn btn-primary" type="hidden" name="action" value="unfollow">
+    {% else %}
+    <input class="btn btn-primary" type="submit" value="Follow {{ profile }}">
+    <input class="btn btn-primary" type="hidden" name="action" value="follow">
+    {% endif %}
+    </div>
+</form>
 {% endif %}
 <ul id="following_these_users"></ul>
 <ul id="followed_by"></ul>

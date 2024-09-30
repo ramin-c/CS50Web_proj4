@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
+
 
 
 from .models import *
@@ -125,8 +127,6 @@ def user_profile(request, profile):
     # check if logged id, if so: enable follow-button
     try:
         profile = User.objects.get(username=profile)
-        print(profile.username)
-        print(profile.id)
     except:
         return render(request, "network/profile.html", {
             "message": "User does not exist."
@@ -138,8 +138,49 @@ def user_profile(request, profile):
                 "posts": posts
             })
     
+    follower_list = None
+    following = False
+
+    if request.user.is_authenticated and request.method != "POST":
+        try:
+            follower_list = Follower_list.objects.get(user=User.objects.get(username=request.user.username))
+            print("trying to get follower list #1:")
+            print(follower_list)
+        except ObjectDoesNotExist:
+            print("Could not find connection.")
+        if follower_list is not None:
+            following = True
+
+
+    
+    if request.user.is_authenticated and request.method == "POST":
+        if request.POST.get('action', False) == 'follow':
+            try:
+                follower_list = Follower_list.objects.get(user=User.objects.get(username=request.user.username))
+                print("trying to get follower lis #2:")
+                print(follower_list)
+            except ObjectDoesNotExist:
+                print("Could not find connection.")
+            if follower_list is None:
+                follower_list = Follower_list.objects.create(user=User.objects.get(username=request.user.username))
+            follower_list.follows_user.add(User.objects.get(username=profile))
+            follower_list.save()
+            following = True
+        else:
+            try:
+                follower_list = Follower_list.objects.get(user=User.objects.get(username=request.user.username))
+                print("trying to get follower lis #3:")
+                print(follower_list)
+            except ObjectDoesNotExist:
+                print("Could not find connection.")
+            print("am here")
+            print(follower_list)
+            follower_list.follows_user.remove(User.objects.get(username=profile))
+            follower_list.save()
+    
     return render(request, "network/profile.html", {
         "profile": profile.username,
+        "following": following
     })
 
     

@@ -76,8 +76,8 @@ function display_posts(posts) {
     posts.forEach(post => {
         
         posts_div.innerHTML = posts_div.innerHTML +     
-        '<div><h4>' + post.content + '</h4><div> By: ' + post.creator + 
-        ' on ' + post.date.substring(0,10) + 
+        '<div><h4>' + post.content + '</h4><div> By: <a href="/profile/' + post.creator + '">' +
+        post.creator + '</a> on ' + post.date.substring(0,10) + 
         ', ' + post.date.substring(11,16) + 
         '</div><div> Likes: ' + post.likes + '</div></div><br>';
 
