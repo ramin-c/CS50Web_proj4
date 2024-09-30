@@ -147,7 +147,6 @@ def user_profile(request, profile):
 @csrf_exempt
 def get_profiles_posts(request, profile):
 
-    # Attempt to create new user
     try:
         profile = User.objects.get(username=profile)
     except IntegrityError:
@@ -158,5 +157,21 @@ def get_profiles_posts(request, profile):
     for post in posts:
         post['likes'] = len(Like.objects.filter(post_liked=post['id']))
         post['creator'] = User.objects.get(pk=post['creator_id']).username
-    # posts = list(Post.objects.filter(creator=profile))
     return JsonResponse({"posts": posts}, status=200)
+
+
+@csrf_exempt
+def get_follow_data(request, profile):
+    try:
+        profile = User.objects.get(username=profile)
+    except IntegrityError:
+        return render(request, "network/register.html", {
+            "message": "User does not exist."
+        })
+    following_these_users = list(Follower_list.objects.filter(follows_user=User.objects.get(username=profile)).values())
+    followed_by = list(Follower_list.objects.filter(user=User.objects.get(username=profile)).values())
+    print(following_these_users)
+    print(followed_by)
+    # posts = list(Post.objects.filter(creator=profile))
+    return JsonResponse({"following_these_users": following_these_users,
+                         "followed_by": followed_by}, status=200)
