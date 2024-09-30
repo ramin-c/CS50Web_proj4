@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log(profilename);
 
-    fetch_posts_and_display(profilename);
+    let posts = fetch_profile_posts(profilename);
+    display_posts(posts);
     
 });
 
@@ -32,18 +33,17 @@ function display_following_these_users(following_these_users) {
 }
 
 
-function fetch_profile_posts(profilename) {
-    return fetch('/get_users_posts/' + profilename, {
-        method:"POST",
-        body: JSON.stringify({
-            profile: profilename,
-        })
+function fetch_profile_posts(profile) {
+    return fetch('/get_users_posts/' + profile, {method:"POST",
+        profile: profile
     })
     .then(response => response.json())
     .then(result => {
         // Print result
         console.log("result:");
         console.log(result); 
+        display_posts(result.posts);
+        return result;
     });
 }
 
@@ -63,19 +63,5 @@ function display_posts(posts) {
         ', ' + post.date.substring(11,16) + 
         '</div><div> Likes: ' + post.likes + '</div></div><br>';
 
-    });
-}
-
-
-function fetch_posts_and_display(profile) {
-    fetch('/get_users_posts/' + profile, {method:"POST",
-        profile: profile
-    })
-    .then(response => response.json())
-    .then(result => {
-        // Print result
-        console.log("result:");
-        console.log(result); 
-        display_posts(result.posts);
     });
 }

@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block body %}
+{% if message %}
+    <h1>{{ message }}</h1>
+{% endif %}
 {% if user.is_authenticated %}
 
 {{ request.user.username|json_script:"username" }}

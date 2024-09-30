@@ -123,9 +123,14 @@ def user_profile(request, profile):
     # load userprofile
 
     # check if logged id, if so: enable follow-button
-    profile = User.objects.get(username=profile)
-    print(profile.username)
-    print(profile.id)
+    try:
+        profile = User.objects.get(username=profile)
+        print(profile.username)
+        print(profile.id)
+    except:
+        return render(request, "network/profile.html", {
+            "message": "User does not exist."
+        })
     try:
         posts = list(Post.objects.filter(creator=profile.id))
     except IntegrityError:
