@@ -12,7 +12,7 @@
 </form>
 {{ request.user.id|json_script:"user_id" }}
 {% endif %}
-<ul id="posts_div">
+<ul id="posts_div"></ul>
     <!-- {% for post in posts %}
     <hr>
     <li> {{ post.content }} <div><br> By: {{ post.creator }} on {{ post.date }} Likes: {{ post.likes }} </div></li>
@@ -21,7 +21,6 @@
     <li>No posts yet.</li>
 
     {% endfor %} -->
-</ul>
 <script src="{% static 'network/create_post.js' %}"></script>
 <script>let CSRF_TOKEN = '{{ csrf_token }}';</script>
 <script>const init_posts = '{{ posts }}';</script>

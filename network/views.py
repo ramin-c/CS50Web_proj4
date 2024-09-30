@@ -114,3 +114,44 @@ def load_posts(request):
          element['creator'] = User.objects.get(pk=element['creator_id']).username
          
     return JsonResponse({"posts": posts}, status=200)
+
+
+def user_profile(request, profile):
+    # create profile.html
+
+    # check if user id exists
+    # load userprofile
+
+    # check if logged id, if so: enable follow-button
+    profile = User.objects.get(username=profile)
+    print(profile.username)
+    print(profile.id)
+    try:
+        posts = list(Post.objects.filter(creator=profile.id))
+    except IntegrityError:
+            return render(request, "network/register.html", {
+                "posts": posts
+            })
+    
+    return render(request, "network/profile.html", {
+        "profile": profile.username,
+    })
+
+    
+
+@csrf_exempt
+def get_profiles_posts(request, profile):
+
+    # Attempt to create new user
+    try:
+        profile = User.objects.get(username=profile)
+    except IntegrityError:
+        return render(request, "network/register.html", {
+            "message": "User does not exist."
+        })
+    posts = list(Post.objects.filter(creator=profile).order_by('-date').values())
+    for post in posts:
+        post['likes'] = len(Like.objects.filter(post_liked=post['id']))
+        post['creator'] = User.objects.get(pk=post['creator_id']).username
+    # posts = list(Post.objects.filter(creator=profile))
+    return JsonResponse({"posts": posts}, status=200)

@@ -1,0 +1,23 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+{% if user.is_authenticated %}
+
+{{ request.user.username|json_script:"username" }}
+{% endif %}
+<ul id="following_these_users"></ul>
+<ul id="followed_by"></ul>
+<ul id="posts_div"></ul>
+    <!-- {% for post in posts %}
+    <hr>
+    <li> {{ post.content }} <div><br> By: {{ post.creator }} on {{ post.date }} Likes: {{ post.likes }} </div></li>
+
+    {% empty %}
+    <li>No posts yet.</li>
+
+    {% endfor %} -->
+<script src="{% static 'network/profile_functions.js' %}"></script>
+<script>const CSRF_TOKEN = '{{ csrf_token }}';</script>
+<script>const PROFILE_NAME = '{{ profile }}';</script>
+{% endblock %}
