@@ -119,12 +119,7 @@ def load_posts(request):
 
 
 def user_profile(request, profile):
-    # create profile.html
 
-    # check if user id exists
-    # load userprofile
-
-    # check if logged id, if so: enable follow-button
     try:
         profile = User.objects.get(username=profile)
     except:
@@ -141,6 +136,12 @@ def user_profile(request, profile):
     follower_list = None
     following = False
 
+    if request.user.username == profile.username:
+        return render(request, "network/profile.html", {
+        "profile": profile.username,
+        "following": following
+    })
+
     if request.user.is_authenticated and request.method != "POST":
         try:
             follower_list = Follower_list.objects.get(user=User.objects.get(username=request.user.username))
@@ -149,7 +150,10 @@ def user_profile(request, profile):
         except ObjectDoesNotExist:
             print("Could not find connection.")
         if follower_list is not None:
-            following = True
+            if len(Follower_list.objects.filter(
+                user=User.objects.get(username=request.user.username), 
+                follows_user=User.objects.get(username=profile.username))) > 0:
+                following = True
 
 
     
@@ -163,7 +167,7 @@ def user_profile(request, profile):
                 print("Could not find connection.")
             if follower_list is None:
                 follower_list = Follower_list.objects.create(user=User.objects.get(username=request.user.username))
-            follower_list.follows_user.add(User.objects.get(username=profile))
+            follower_list.follows_user.add(User.objects.get(username=profile.username))
             follower_list.save()
             following = True
         else:
@@ -173,10 +177,10 @@ def user_profile(request, profile):
                 print(follower_list)
             except ObjectDoesNotExist:
                 print("Could not find connection.")
-            print("am here")
-            print(follower_list)
-            follower_list.follows_user.remove(User.objects.get(username=profile))
+            follower_list.follows_user.remove(User.objects.get(username=profile.username))
             follower_list.save()
+            print("am here")
+            print(follower_list.follows_user)
     
     return render(request, "network/profile.html", {
         "profile": profile.username,
@@ -211,8 +215,8 @@ def get_follow_data(request, profile):
         })
     following_these_users = list(Follower_list.objects.filter(follows_user=User.objects.get(username=profile)).values())
     followed_by = list(Follower_list.objects.filter(user=User.objects.get(username=profile)).values())
-    print(following_these_users)
-    print(followed_by)
+    print(Follower_list.id)
+    print(Follower_list.follows_user)
     # posts = list(Post.objects.filter(creator=profile))
     return JsonResponse({"following_these_users": following_these_users,
                          "followed_by": followed_by}, status=200)

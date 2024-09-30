@@ -7,7 +7,7 @@ class User(AbstractUser):
 
 
 class Follower_list(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following", unique=True)
     follows_user = models.ManyToManyField(User, blank=True, related_name="followed_user")
 
 
