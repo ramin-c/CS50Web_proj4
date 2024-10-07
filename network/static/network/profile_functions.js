@@ -8,9 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let posts = fetch_profile_posts(profilename);
     display_posts(posts);
 
-    let following_data = fetch_following_data(profilename);
-
-    display_following_data(following_data);
+    fetch_following_data(profilename);
     
 });
 
@@ -27,16 +25,17 @@ function display_followed_by(followed_by) {
 
 
 function fetch_following_data(profile) {
-    fetch('/get_follow_data/' + profile, {method:"POST",
+
+    return fetch('/get_follow_data/' + profile, {method:"POST",
         profile: profile
     })
     .then(response => response.json())
     .then(result => {
         // Print result
-        console.log("result following data:");
-        console.log(result); 
+        console.log("result following_data:");
+        console.log(result.followed_by); 
+        console.log(result.following_these_users); 
         display_following_data(result);
-        return result;
     });
 }
 
@@ -51,7 +50,6 @@ function fetch_profile_posts(profile) {
         console.log("result profile posts:");
         console.log(result); 
         display_posts(result.posts);
-        return result;
     });
 }
 
@@ -83,17 +81,28 @@ function display_posts(posts) {
 
 function display_following_data(following_data) {
     console.log("in display_following_data()");
+    console.log("following_these_users data: ");
+    console.log(following_data.following_these_users.length);
+
+
     followed_by_div = document.querySelector('#followed_by');
     following_these_users = document.querySelector('#following_these_users');
 
 
+
+    // if (followed_by_number == 1) {
+    //     followed_by_div.innerHTML = "Followed by " + followed_by_number + " user.";
+    // } else {
+    //     followed_by_div.innerHTML = "Followed by " + followed_by_number + " user.";
+    // }
+
     if (following_data.followed_by.length == 1) {
         followed_by_div.innerHTML = "Followed by " + following_data.followed_by.length + " user.";
     } else {
-        followed_by_div.innerHTML = "Followed by " + following_data.followed_by.length + " user.";
+        followed_by_div.innerHTML = "Followed by " + following_data.followed_by.length + " users.";
     }
 
-    if (following_data.following_these_users.length == 1) {
+    if (following_these_users == 1) {
         following_these_users.innerHTML = "Following " + following_data.following_these_users.length + " user.";
     } else {
         following_these_users.innerHTML = "Following " + following_data.following_these_users.length + " users.";
