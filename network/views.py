@@ -7,9 +7,9 @@ from django.contrib.auth.decorators import login_required
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.serializers import serialize
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
+# from django.core.serializers import serialize
+# from django.core import serializers
+# from django.core.serializers.json import DjangoJSONEncoder
 
 
 
@@ -29,15 +29,27 @@ def index(request):
 
 @login_required
 def following_page(request):
-    following_these_users = Follower_list.objects.filter(user=User.objects.get(username=request.user.username)).values()
 
+    user_id = User.objects.get(username=request.user.username).id
+    follower_list = Follower_list.objects.get(user=user_id)
+    following_these_users = []
+    for follower in follower_list.followed_users.all():
+        following_these_users.append(follower.username)
     print("following these users:")
     print(following_these_users)
 
+    posts_from_followed_users = []
     posts = Post.objects.all().order_by('-date')
     for post in posts:
-        post.likes = len(Like.objects.filter(post_liked=post.id))
-    return render(request, "network/index.html", {
+        print(f"creator: {post.creator.username}")
+        if post.creator.username in following_these_users:
+            posts_from_followed_users.append(post)
+            print(f"added post from: {post.creator.username}")
+
+    placeholder = []
+
+
+    return render(request, "network/following.html", {
         "posts": posts
     })
 
@@ -137,6 +149,35 @@ def load_posts(request):
          element['creator'] = User.objects.get(pk=element['creator_id']).username
          
     return JsonResponse({"posts": posts}, status=200)
+
+
+@csrf_exempt
+def load_posts_following_page(request):
+    user_id = User.objects.get(username=request.user.username).id
+    follower_list = Follower_list.objects.get(user=user_id)
+    following_these_users = []
+    for follower in follower_list.followed_users.all():
+        following_these_users.append(follower.username)
+    print("following these users:")
+    print(following_these_users)
+
+    posts_from_followed_users = []
+    posts = Post.objects.all().order_by('-date').values()
+    posts = list(posts)
+    for post in posts:
+        post['likes'] = len(Like.objects.filter(post_liked=post['id']))
+        post['creator'] = User.objects.get(pk=post['creator_id']).username
+        print(post)
+        print(f"creator: {post['creator']}")
+        if post['creator'] in following_these_users:
+            posts_from_followed_users.append(post)
+            print(f"added post from: {post['creator']}")
+
+    print("function returns:")
+    posts_from_followed_users = list(posts_from_followed_users)
+    print(posts_from_followed_users)
+         
+    return JsonResponse({"posts": posts_from_followed_users}, status=200)
 
 
 def user_profile(request, profile):
