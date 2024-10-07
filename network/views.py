@@ -7,9 +7,6 @@ from django.contrib.auth.decorators import login_required
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
-# from django.core.serializers import serialize
-# from django.core import serializers
-# from django.core.serializers.json import DjangoJSONEncoder
 
 
 
@@ -30,8 +27,7 @@ def index(request):
 @login_required
 def following_page(request):
 
-    user_id = User.objects.get(username=request.user.username).id
-    follower_list = Follower_list.objects.get(user=user_id)
+    follower_list = get_or_create_followerlist_for_user(request.user.username)
     following_these_users = []
     for follower in follower_list.followed_users.all():
         following_these_users.append(follower.username)
@@ -46,11 +42,10 @@ def following_page(request):
             posts_from_followed_users.append(post)
             print(f"added post from: {post.creator.username}")
 
-    placeholder = []
 
 
     return render(request, "network/following.html", {
-        "posts": posts
+        "posts": posts_from_followed_users
     })
 
 
@@ -210,8 +205,6 @@ def user_profile(request, profile):
 
         if profile in follower_list.followed_users.all():
             following = True
-
-
     
     if request.user.is_authenticated and request.method == "POST":
         if request.POST.get('action', False) == 'follow':
@@ -271,33 +264,30 @@ def get_follow_data(request, profile):
         return render(request, "network/register.html", {
             "message": "User does not exist."
         })
-    # Get the Follower_list object for the user
+    # Get the Follower_list object for current user
     follower_list = get_or_create_followerlist_for_user(profile_user)
 
-    # Retrieve the list of users this user is following
+    # Retrieve the list of users the current user is following
     follower_list = Follower_list.objects.get(user=profile_user)
-    print("trying to get follower lis #3:")
-    print("iterating over followers in follower_list: ")
+    # print("trying to get follower lis #3:")
+    # print("iterating over followers in follower_list: ")
     following_these_users = []
     for follower in follower_list.followed_users.all():
         following_these_users.append(follower.username)
-    print("following_these_users:")
-    print(following_these_users)
+    # print("following_these_users:")
+    # print(following_these_users)
 
+    # Retrieve the users that are following the current user
     followed_by = []
     for follower_list in Follower_list.objects.filter(
         followed_users__username=profile_user):
         if (follower_list.user.username != profile):
             followed_by.append(follower_list.user.username) 
-    print("followed by these users:")
-    print(followed_by)
+    # print("followed by these users:")
+    # print(followed_by)
 
-    # posts = list(Post.objects.filter(creator=profile))
     return JsonResponse({"following_these_users": following_these_users,
                          "followed_by": followed_by}, status=200)
-
-
-
 
 
     
@@ -314,11 +304,8 @@ def get_or_create_followerlist_for_user(user):
 
 
 def get_followers_of_user(user):
-    # Filter the Follower_list objects where 'user_a' is in the 'follows_user' field
-    # followers_lists = Follower_list.objects.filter(user__in=Follower_list.objects.all())
     followers_lists = Follower_list.objects.filter(followed_users=user)
     
-    # Get all users who have 'user_a' in their 'follows_user' field
     followers = [follower_list.user for follower_list in followers_lists]
     
     return followers

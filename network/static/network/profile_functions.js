@@ -102,7 +102,7 @@ function display_following_data(following_data) {
         followed_by_div.innerHTML = "Followed by " + following_data.followed_by.length + " users.";
     }
 
-    if (following_these_users == 1) {
+    if (following_data.following_these_users.length == 1) {
         following_these_users.innerHTML = "Following " + following_data.following_these_users.length + " user.";
     } else {
         following_these_users.innerHTML = "Following " + following_data.following_these_users.length + " users.";
