@@ -320,8 +320,9 @@ def update_post(request, post_id):
         print(f"update user post checK: {post.creator.username == request_data['username']}")
         print(f"post.creator.username: {post.creator.username}. request.post.username: {request_data['username']}")
         if post.creator.username == request_data['username']:
-            post.content = request.POST.get('post_content', False)
-            post.date = request.POST.get('post_date', False)
+            post.content = request_data['post_content']
+            print(f"new post.content: {post.content}")
+            # post.date = request_data['post_date']
             post.save()
             message = f"Post with id {post_id} shall be updated"
             print(message)

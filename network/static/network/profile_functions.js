@@ -135,6 +135,7 @@ function turn_into_textarea_and_update_post(post_id, post_content, csrftoken, el
 
 function update_post(post_id, post_content, csrftoken, username) {
     const decoded_post_content = decodeURIComponent(post_content);
+    const current_date = new Date() / 1000;
     console.log("post_id:" + post_id);
     console.log("csrftoken:" + csrftoken);
     return fetch('/update_post/' + post_id, {
@@ -142,7 +143,7 @@ function update_post(post_id, post_content, csrftoken, username) {
           body: JSON.stringify({
             post_id: post_id,
             post_content: decoded_post_content,
-            post_date: new Date() / 1000,
+            post_date: current_date,
             username: username
           }),
           headers: {
@@ -166,7 +167,7 @@ function turn_into_textarea(element, post_content, post_id, csrftoken, username)
     let button = document.createElement('button');
     button.className = 'btn btn-primary'; // Add class to button
     // button.onclick = 
-    button.onclick = function() { update_post(post_id, "new post content here", csrftoken, username); }
+    button.onclick = function() { update_post(post_id, textarea.value, csrftoken, username); }
     button.textContent = 'Send'; // Set button text
 
     // Append the textarea and button to the container
