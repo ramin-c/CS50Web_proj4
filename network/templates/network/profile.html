@@ -33,4 +33,5 @@
 <script src="{% static 'network/profile_functions.js' %}"></script>
 <script>const CSRF_TOKEN = '{{ csrf_token }}';</script>
 <script>const PROFILE_NAME = '{{ profile }}';</script>
+<script>const current_username = '{{ request.user.username }}';</script>
 {% endblock %}

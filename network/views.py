@@ -309,3 +309,32 @@ def get_followers_of_user(user):
     followers = [follower_list.user for follower_list in followers_lists]
     
     return followers
+
+
+@login_required
+def update_post(request, post_id):
+    if request.method == "POST":
+        post = Post.objects.get(id=post_id)
+        request_data = json.loads(request.body)
+        print(request_data)
+        print(f"update user post checK: {post.creator.username == request_data['username']}")
+        print(f"post.creator.username: {post.creator.username}. request.post.username: {request_data['username']}")
+        if post.creator.username == request_data['username']:
+            post.content = request.POST.get('post_content', False)
+            post.date = request.POST.get('post_date', False)
+            post.save()
+            message = f"Post with id {post_id} shall be updated"
+            print(message)
+            return JsonResponse({
+                "result": message
+                }, status=200)
+    return JsonResponse({
+        "result": "Update posts via POST method only."
+    }, status=403)
+
+
+# Edit Posts – To Do:
+# Add CSRF Token to this JS code AND to the Django API side
+# clicking on the save button makes the API request to store the new Post
+# check if request comes from user who created the post !
+# after storing it, refetch the posts

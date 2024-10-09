@@ -11,6 +11,7 @@
     <input class="btn btn-primary" type="submit" value="Create post">
 </form>
 {{ request.user.id|json_script:"user_id" }}
+{{ request.user.username|json_script:"username" }}
 {% endif %}
 <ul id="posts_div"></ul>
     <!-- {% for post in posts %}
