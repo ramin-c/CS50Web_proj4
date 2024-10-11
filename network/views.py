@@ -313,25 +313,18 @@ def get_followers_of_user(user):
 
 @login_required
 def update_post(request, post_id):
-
-    # Edit Posts – To Do:
-    # after storing it, refetch the posts
-
     if request.method == "POST":
         post = Post.objects.get(id=post_id)
         request_data = json.loads(request.body)
-        print(request_data)
-        print(f"update user post checK: {post.creator.username == request_data['username']}")
-        print(f"post.creator.username: {post.creator.username}. request.post.username: {request_data['username']}")
-        if post.creator.username == request_data['username']:
+        if post.creator.username == request.user.username:
             post.content = request_data['post_content']
-            print(f"new post.content: {post.content}")
             post.edited = True
             post.save()
-            message = f"Post with id {post_id} shall be updated"
-            print(message)
-            # print(request_data['profile'])
             return get_profiles_posts(request, request_data['profile'])
+        else:
+            return JsonResponse({
+            "result": "Access denied. Cannot edit posts of other users."
+            }, status=403)
     return JsonResponse({
         "result": "Update posts via POST method only."
     }, status=403)

@@ -154,7 +154,6 @@ function update_post(post_id, post_content, csrftoken, username) {
             post_id: post_id,
             post_content: decoded_post_content,
             post_date: current_date,
-            username: username,
             profile: profilename
           }),
           headers: {
