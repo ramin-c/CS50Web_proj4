@@ -1,8 +1,12 @@
+let csrftoken;
+let profilename;
+let username;
+
 document.addEventListener('DOMContentLoaded', function() {
 
-    const csrftoken = CSRF_TOKEN;
-    const profilename = PROFILE_NAME;
-    const username = current_username;
+    csrftoken = CSRF_TOKEN;
+    profilename = PROFILE_NAME;
+    username = current_username;
 
     console.log(profilename);
 
@@ -77,6 +81,12 @@ function display_posts(posts, username, csrftoken) {
             const escaped_post_content = encodeURIComponent(post.content);
             const JSON_string_post_content = JSON.stringify(post.content);
 
+            let edited = "";
+
+            if (post.edited == true) {
+                edited = "<span>. (Edited post)</span>";
+            }
+
 
 
             posts_div.innerHTML += `   
@@ -89,7 +99,7 @@ function display_posts(posts, username, csrftoken) {
                 <div> By: <a href="/profile/${post.creator}">${post.creator}</a> 
                     on ${post.date.substring(0, 10)}, ${post.date.substring(11, 16)}
                 </div>
-                <div>Likes: ${post.likes}</div>
+                <div>Likes: ${post.likes}${edited}</div>
             </div>
             <br>`;
         } else {
@@ -97,7 +107,7 @@ function display_posts(posts, username, csrftoken) {
             '<div><h4>' + post.content + '</h4><div> By: <a href="/profile/' + post.creator + '">' +
             post.creator + '</a> on ' + post.date.substring(0,10) + 
             ', ' + post.date.substring(11,16) + 
-            '</div><div> Likes: ' + post.likes + '</div></div><br>';
+            '</div><div> Likes: ' + post.likes + edited + '</div></div><br>';
         }
         
     });
@@ -144,12 +154,19 @@ function update_post(post_id, post_content, csrftoken, username) {
             post_id: post_id,
             post_content: decoded_post_content,
             post_date: current_date,
-            username: username
+            username: username,
+            profile: profilename
           }),
           headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken  // Include the CSRF token in the headers
           }
+    }).then(response => response.json())
+    .then(result => {
+        // Print result
+        console.log("result profile posts:");
+        console.log(result); 
+        display_posts(result.posts, username, csrftoken);
     });
 }
 
@@ -158,6 +175,7 @@ function turn_into_textarea(element, post_content, post_id, csrftoken, username)
 
     // Create a container div
     let div_with_textarea = document.createElement('div');
+    div_with_textarea.id = "posts_div";
 
     // Create the textarea
     let textarea = document.createElement('textarea');

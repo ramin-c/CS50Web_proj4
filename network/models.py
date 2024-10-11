@@ -18,6 +18,7 @@ class Post(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=50000)
+    edited = models.BooleanField(default=False)
 
 
 class Like(models.Model):
