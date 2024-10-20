@@ -7,6 +7,21 @@ from django.contrib.auth.decorators import login_required
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
+
+
+
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.serializers import serialize
+
+
+
+class LazyEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Paginator.page):
+            return str(obj)
+        return super().default(obj)
+
 
 
 
@@ -135,13 +150,23 @@ def create_post(request):
 
 @csrf_exempt
 def load_posts(request):
+    request_data = json.loads(request.body)
     posts = Post.objects.all().order_by('-date').values()
     posts = list(posts)
     for element in posts:
-         element['likes'] = len(Like.objects.filter(post_liked=element['id']))
-         element['creator'] = User.objects.get(pk=element['creator_id']).username
-         
-    return JsonResponse({"posts": posts}, status=200)
+        element['likes'] = len(Like.objects.filter(post_liked=element['id']))
+        element['creator'] = User.objects.get(pk=element['creator_id']).username
+    if not request_data['paginated']:
+
+        return JsonResponse({"posts": posts}, status=200)
+    
+    else:
+        posts_paginated = Paginator(posts, 10)
+        posts_paginated.get_page(request_data['page_number'])
+
+        post_as_serializable_objects = posts_paginated.page(request_data['page_number']).object_list
+
+        return JsonResponse({"posts": post_as_serializable_objects}, status=200)
 
 
 @csrf_exempt

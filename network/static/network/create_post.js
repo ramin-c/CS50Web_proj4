@@ -1,6 +1,7 @@
 let username;
 let profilename;
 let csrftoken;
+let current_page;
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -8,7 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     profilename = PROFILE_NAME;
     csrftoken = CSRF_TOKEN;
 
-    let posts = fetch_posts_and_display();
+    current_page = 1
+
+    let posts = fetch_posts_and_display(current_page);
 
   
     // Create Post
@@ -46,7 +49,7 @@ function create_post(post, csrftoken) {
         .then(result => {
             console.log("Result from create_post:", result);
             // After the post is successfully created, fetch the updated list of posts
-            fetch_posts_and_display();  // Fetch and display the latest posts
+            fetch_posts_and_display(current_page);  // Fetch and display the latest posts
         })
         .catch(error => {
             console.error("Error during create_post:", error);
@@ -54,8 +57,13 @@ function create_post(post, csrftoken) {
         document.querySelector('#post_content').value = "";
 }
 
-function fetch_posts() {
-    return fetch('/load_posts', {method:"POST"})
+function fetch_posts(page_number) {
+    return fetch('/load_posts', {method:"POST",
+        body: JSON.stringify({
+            paginated: true,
+            page_number: page_number
+          }),
+    })
     .then(console.log("Posts:"))
     .then(response => response.json())
     .then(result => {
@@ -65,8 +73,12 @@ function fetch_posts() {
 }
 
 
-function fetch_posts_and_display() {
-    fetch('/load_posts', {method:"POST"})
+function fetch_posts_and_display(page_number) {
+    fetch('/load_posts', {method:"POST",
+        body: JSON.stringify({
+        paginated: true,
+        page_number: page_number
+      }),})
     .then(response => response.json())
     .then(result => {
         // Print result
