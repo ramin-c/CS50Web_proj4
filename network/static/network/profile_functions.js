@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log(profilename);
 
-    let posts = fetch_profile_posts(profilename, username, csrftoken);
-    display_posts(posts, username, csrftoken);
+    let posts = fetch_profile_posts(profilename);
+    display_posts(posts);
 
     fetch_following_data(profilename);
     
@@ -45,7 +45,7 @@ function fetch_following_data(profile) {
 }
 
 
-function fetch_profile_posts(profile, username, csrftoken) {
+function fetch_profile_posts(profile) {
     return fetch('/get_users_posts/' + profile, {method:"POST",
         profile: profile
     })
@@ -59,7 +59,7 @@ function fetch_profile_posts(profile, username, csrftoken) {
 }
 
 
-function display_posts(posts, username, csrftoken) {
+function display_posts(posts) {
     posts_div = document.querySelector('#posts_div');
     posts_div.innerHTML = "";
 
@@ -74,6 +74,7 @@ function display_posts(posts, username, csrftoken) {
 
     posts.forEach(post => {
 
+        let edited = "";
 
         if (post.creator == username) {
 
@@ -81,7 +82,6 @@ function display_posts(posts, username, csrftoken) {
             const escaped_post_content = encodeURIComponent(post.content);
             const JSON_string_post_content = JSON.stringify(post.content);
 
-            let edited = "";
 
             if (post.edited == true) {
                 edited = "<span>. (Edited post)</span>";
@@ -93,7 +93,7 @@ function display_posts(posts, username, csrftoken) {
             <div>
                 <h4>${post.content}</h4>
                 <button class="btn btn-primary" onlick="turn_into_textarea()"
-                            onclick="turn_into_textarea_and_update_post(${post.id}, '${escaped_post_content}', '${csrftoken}', this, '${username}')">
+                            onclick="turn_into_textarea_and_update_post(${post.id}, '${escaped_post_content}', this)">
                     Edit post
                 </button>
                 <div> By: <a href="/profile/${post.creator}">${post.creator}</a> 
@@ -137,13 +137,13 @@ function display_following_data(following_data) {
 }
 
 
-function turn_into_textarea_and_update_post(post_id, post_content, csrftoken, element, username) {
+function turn_into_textarea_and_update_post(post_id, post_content, element) {
     // update_post(post_id, post_content, csrftoken, username);
-    turn_into_textarea(element, post_content, post_id, csrftoken, username);
+    turn_into_textarea(element, post_content, post_id);
 }
 
 
-function update_post(post_id, post_content, csrftoken, username) {
+function update_post(post_id, post_content) {
     const decoded_post_content = decodeURIComponent(post_content);
     const current_date = new Date() / 1000;
     console.log("post_id:" + post_id);
@@ -154,7 +154,8 @@ function update_post(post_id, post_content, csrftoken, username) {
             post_id: post_id,
             post_content: decoded_post_content,
             post_date: current_date,
-            profile: profilename
+            profile: profilename,
+            request_from_page: "profile"
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -170,11 +171,11 @@ function update_post(post_id, post_content, csrftoken, username) {
 }
 
 
-function turn_into_textarea(element, post_content, post_id, csrftoken, username) {
-
-    // Create a container div
-    let div_with_textarea = document.createElement('div');
-    div_with_textarea.id = "posts_div";
+function turn_into_textarea(element, post_content, post_id) {
+    
+    // Create a container ul
+    let ul_with_textarea = document.createElement('ul');
+    ul_with_textarea.id = "posts_div";
 
     // Create the textarea
     let textarea = document.createElement('textarea');
@@ -188,10 +189,10 @@ function turn_into_textarea(element, post_content, post_id, csrftoken, username)
     button.textContent = 'Send'; // Set button text
 
     // Append the textarea and button to the container
-    div_with_textarea.appendChild(textarea);
-    div_with_textarea.appendChild(button);
-    
+    ul_with_textarea.appendChild(textarea);
+    ul_with_textarea.appendChild(button);
+
 
     console.log("turn this into textarea");
-    element.parentNode.parentNode.replaceWith(div_with_textarea);
+    element.parentNode.parentNode.replaceWith(ul_with_textarea);
 }

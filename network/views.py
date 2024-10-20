@@ -42,8 +42,6 @@ def following_page(request):
             posts_from_followed_users.append(post)
             print(f"added post from: {post.creator.username}")
 
-
-
     return render(request, "network/following.html", {
         "posts": posts_from_followed_users
     })
@@ -269,13 +267,9 @@ def get_follow_data(request, profile):
 
     # Retrieve the list of users the current user is following
     follower_list = Follower_list.objects.get(user=profile_user)
-    # print("trying to get follower lis #3:")
-    # print("iterating over followers in follower_list: ")
     following_these_users = []
     for follower in follower_list.followed_users.all():
         following_these_users.append(follower.username)
-    # print("following_these_users:")
-    # print(following_these_users)
 
     # Retrieve the users that are following the current user
     followed_by = []
@@ -283,8 +277,6 @@ def get_follow_data(request, profile):
         followed_users__username=profile_user):
         if (follower_list.user.username != profile):
             followed_by.append(follower_list.user.username) 
-    # print("followed by these users:")
-    # print(followed_by)
 
     return JsonResponse({"following_these_users": following_these_users,
                          "followed_by": followed_by}, status=200)
@@ -320,7 +312,10 @@ def update_post(request, post_id):
             post.content = request_data['post_content']
             post.edited = True
             post.save()
-            return get_profiles_posts(request, request_data['profile'])
+            if (request_data['request_from_page'] == "profile"):
+                return get_profiles_posts(request, request_data['profile'])
+            elif (request_data['request_from_page'] == "index"):
+                return load_posts(request)
         else:
             return JsonResponse({
             "result": "Access denied. Cannot edit posts of other users."

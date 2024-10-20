@@ -25,4 +25,6 @@
 <script src="{% static 'network/create_post.js' %}"></script>
 <script>let CSRF_TOKEN = '{{ csrf_token }}';</script>
 <script>const init_posts = '{{ posts }}';</script>
+<script>const PROFILE_NAME = '{{ profile }}';</script>
+<script>const current_username = '{{ request.user.username }}';</script>
 {% endblock %}

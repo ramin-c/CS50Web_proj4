@@ -1,4 +1,12 @@
+let username;
+let profilename;
+let csrftoken;
+
 document.addEventListener('DOMContentLoaded', function() {
+
+    username = current_username;
+    profilename = PROFILE_NAME;
+    csrftoken = CSRF_TOKEN;
 
     let posts = fetch_posts_and_display();
 
@@ -73,13 +81,108 @@ function display_posts(posts) {
     posts_div = document.querySelector('#posts_div');
     posts_div.innerHTML = "";
 
-    posts.forEach(post => {
-        
-        posts_div.innerHTML = posts_div.innerHTML +     
-        '<div><h4>' + post.content + '</h4><div> By: <a href="/profile/' + post.creator + '">' +
-        post.creator + '</a> on ' + post.date.substring(0,10) + 
-        ', ' + post.date.substring(11,16) + 
-        '</div><div> Likes: ' + post.likes + '</div></div><br>';
+    // Convert posts to array
+    posts = Array.from(posts);
 
+    posts.forEach(post => {
+
+        console.log("create_posts.js – am here: ");
+        console.log(post);
+
+        let edited = "";
+
+        if (post.creator == username) {
+
+
+            const escaped_post_content = encodeURIComponent(post.content);
+            const JSON_string_post_content = JSON.stringify(post.content);
+
+
+            if (post.edited == true) {
+                edited = "<span>. (Edited post)</span>";
+            }
+
+
+            posts_div.innerHTML += `   
+            <div>
+                <h4>${post.content}</h4>
+                <button class="btn btn-primary" onlick="turn_into_textarea()"
+                            onclick="turn_into_textarea_and_update_post(${post.id}, '${escaped_post_content}', this)">
+                    Edit post
+                </button>
+                <div> By: <a href="/profile/${post.creator}">${post.creator}</a> 
+                    on ${post.date.substring(0, 10)}, ${post.date.substring(11, 16)}
+                </div>
+                <div>Likes: ${post.likes}${edited}</div>
+            </div>
+            <br>`;
+        } else {
+            posts_div.innerHTML = posts_div.innerHTML +     
+            '<div><h4>' + post.content + '</h4><div> By: <a href="/profile/' + post.creator + '">' +
+            post.creator + '</a> on ' + post.date.substring(0,10) + 
+            ', ' + post.date.substring(11,16) + 
+            '</div><div> Likes: ' + post.likes + edited + '</div></div><br>';
+        }
+        
     });
+}
+
+function turn_into_textarea_and_update_post(post_id, post_content, element) {
+    // update_post(post_id, post_content, csrftoken, username);
+    turn_into_textarea(element, post_content, post_id);
+}
+
+
+function update_post(post_id, post_content) {
+    const decoded_post_content = decodeURIComponent(post_content);
+    const current_date = new Date() / 1000;
+    console.log("post_id: " + post_id);
+    console.log("csrftoken: " + csrftoken);
+    console.log("profilename: " + csrftoken);
+    return fetch('/update_post/' + post_id, {
+        method: 'POST',
+          body: JSON.stringify({
+            post_id: post_id,
+            post_content: decoded_post_content,
+            post_date: current_date,
+            request_from_page: "index"
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken  // Include the CSRF token in the headers
+          }
+    }).then(response => response.json())
+    .then(result => {
+        // Print result
+        console.log("result profile posts:");
+        console.log(result); 
+        display_posts(result.posts, username, csrftoken);
+    });
+}
+
+
+function turn_into_textarea(element, post_content, post_id) {
+
+    // Create a container ul
+    let ul_with_textarea = document.createElement('ul');
+    ul_with_textarea.id = "posts_div";
+
+    // Create the textarea
+    let textarea = document.createElement('textarea');
+    textarea.value = decodeURIComponent(post_content); // Set the value of the textarea
+
+    // Create the button
+    let button = document.createElement('button');
+    button.className = 'btn btn-primary'; // Add class to button
+    // button.onclick = 
+    button.onclick = function() { update_post(post_id, textarea.value, csrftoken, username); }
+    button.textContent = 'Send'; // Set button text
+
+    // Append the textarea and button to the container
+    ul_with_textarea.appendChild(textarea);
+    ul_with_textarea.appendChild(button);
+    
+
+    console.log("turn this into textarea");
+    element.parentNode.parentNode.replaceWith(ul_with_textarea);
 }
