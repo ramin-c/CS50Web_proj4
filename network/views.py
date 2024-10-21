@@ -156,6 +156,7 @@ def load_posts(request):
     for element in posts:
         element['likes'] = len(Like.objects.filter(post_liked=element['id']))
         element['creator'] = User.objects.get(pk=element['creator_id']).username
+        
     if not request_data['paginated']:
 
         return JsonResponse({"posts": posts}, status=200)
