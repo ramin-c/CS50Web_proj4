@@ -153,7 +153,7 @@ function display_posts(posts) {
             '<div><h4>' + post.content + '</h4><div> By: <a href="/profile/' + post.creator + '">' +
             post.creator + '</a> on ' + post.date.substring(0,10) + 
             ', ' + post.date.substring(11,16) + 
-            '</div><div> Likes: ' + post.likes + edited + '</div></div><br>';
+            '</div><a href="#" id="' + post.id + '-like"onclick="like(' + post.id + ')"> Likes: ' + post.likes + '</a>' + edited + '</div></div><br>';
         }
         
     });
