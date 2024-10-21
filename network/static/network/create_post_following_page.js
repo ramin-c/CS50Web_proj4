@@ -139,7 +139,10 @@ function display_posts(posts) {
 }
 
 
-function load_posts_next(element) {
+function load_posts_next(event, element) {
+
+    event.preventDefault();
+
     //document.querySelector.getElementById("prev").parentElement.classList.remove("disabled");
     document.getElementById('prev').parentElement.classList.remove("disabled");
     fetch_posts_and_display(current_page + 1);
@@ -147,7 +150,10 @@ function load_posts_next(element) {
 }
 
 
-function load_posts_prev(element) {
+function load_posts_prev(event, element) {
+
+    event.preventDefault();
+
     if (current_page < 3) {
         current_page = 1;
         document.getElementById('prev').parentElement.classList.add("disabled");
