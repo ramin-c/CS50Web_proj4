@@ -145,7 +145,7 @@ function display_posts(posts) {
                 <div> By: <a href="/profile/${post.creator}">${post.creator}</a> 
                     on ${post.date.substring(0, 10)}, ${post.date.substring(11, 16)}
                 </div>
-                <div>Likes: ${post.likes}${edited}</div>
+                <div><a href="#" id="${post.id}-like" onclick="like(${post.id})"> Likes: ${post.likes}</a>${edited}</div>
             </div>
             <br>`;
         } else {
@@ -237,4 +237,27 @@ function load_posts_prev(element) {
     }
     console.log("current page: " + current_page); 
     fetch_posts_and_display(current_page - 1);
+}
+
+
+function like(post_id) {
+
+    console.log("liking post: " + post_id);
+
+    fetch('/like_post/' + post_id, {
+        method: 'POST',
+          body: JSON.stringify({
+            post_id: post_id,
+            username: username
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken  // Include the CSRF token in the headers
+          }
+    }).then(response =>response.json())
+    .then(result => {
+        console.log("like set to: " + result.new_likes);
+        elementValues = document.getElementById(post_id + "-like").innerHTML.split(' ');
+        document.getElementById(post_id + "-like").innerHTML = "Likes: " + result.new_likes;
+    });
 }
