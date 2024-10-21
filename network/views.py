@@ -182,6 +182,7 @@ def load_posts(request):
 
 @csrf_exempt
 def load_posts_following_page(request):
+    request_data = json.loads(request.body)
     user_id = User.objects.get(username=request.user.username).id
     follower_list = Follower_list.objects.get(user=user_id)
     following_these_users = []
@@ -205,9 +206,26 @@ def load_posts_following_page(request):
     print("function returns:")
     posts_from_followed_users = list(posts_from_followed_users)
     print(posts_from_followed_users)
-         
-    return JsonResponse({"posts": posts_from_followed_users}, status=200)
 
+
+    posts_paginated = Paginator(posts_from_followed_users, 10)
+    print(f"request: posts for page {request_data['page_number']}")
+    last_page = False
+
+    if request_data['page_number'] > posts_paginated.num_pages:
+        page_to_get = posts_paginated.num_pages
+    elif request_data['page_number'] < 1:
+        page_to_get = 1
+    else:
+        page_to_get = request_data['page_number']
+
+    if page_to_get == posts_paginated.num_pages:
+        last_page = True
+        
+    paginated_posts_from_followed_users_as_serializable_objects = posts_paginated.page(page_to_get).object_list
+
+    return JsonResponse({"posts": paginated_posts_from_followed_users_as_serializable_objects, "current_page": page_to_get, "last_page": last_page}, status=200)
+         
 
 def user_profile(request, profile):
 

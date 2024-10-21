@@ -177,7 +177,9 @@ function update_post(post_id, post_content) {
             post_id: post_id,
             post_content: decoded_post_content,
             post_date: current_date,
-            request_from_page: "index"
+            request_from_page: "index",
+            paginated: true,
+            page_number: current_page
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -188,7 +190,7 @@ function update_post(post_id, post_content) {
         // Print result
         console.log("result profile posts:");
         console.log(result); 
-        display_posts(result.posts, username, csrftoken);
+        display_posts(result.posts);
     });
 }
 

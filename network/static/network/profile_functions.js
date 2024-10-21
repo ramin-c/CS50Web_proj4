@@ -1,6 +1,8 @@
 let csrftoken;
 let profilename;
 let username;
+let current_page;
+
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -9,6 +11,13 @@ document.addEventListener('DOMContentLoaded', function() {
     username = current_username;
 
     console.log(profilename);
+
+    current_page = 1
+
+    if (current_page == 1) {
+        document.getElementById('prev').parentElement.classList.add("disabled");
+    }
+    
 
     let posts = fetch_profile_posts(profilename);
     display_posts(posts);
@@ -172,7 +181,7 @@ function update_post(post_id, post_content) {
 
 
 function turn_into_textarea(element, post_content, post_id) {
-    
+
     // Create a container ul
     let ul_with_textarea = document.createElement('ul');
     ul_with_textarea.id = "posts_div";
@@ -195,4 +204,22 @@ function turn_into_textarea(element, post_content, post_id) {
 
     console.log("turn this into textarea");
     element.parentNode.parentNode.replaceWith(ul_with_textarea);
+}
+
+
+function load_posts_next(element) {
+    //document.querySelector.getElementById("prev").parentElement.classList.remove("disabled");
+    document.getElementById('prev').parentElement.classList.remove("disabled");
+    fetch_posts_and_display(current_page + 1);
+
+}
+
+
+function load_posts_prev(element) {
+    if (current_page < 3) {
+        current_page = 1;
+        document.getElementById('prev').parentElement.classList.add("disabled");
+    }
+    console.log("current page: " + current_page); 
+    fetch_posts_and_display(current_page - 1);
 }

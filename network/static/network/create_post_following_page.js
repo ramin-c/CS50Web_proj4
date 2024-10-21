@@ -1,7 +1,16 @@
+let current_page;
+
+
 document.addEventListener('DOMContentLoaded', function() {
+
+    current_page = 1
+
+    if (current_page == 1) {
+        document.getElementById('prev').parentElement.classList.add("disabled");
+    }
     
 
-    let posts = fetch_posts_and_display();
+    let posts = fetch_posts_and_display(current_page);
 
   
     // Create Post
@@ -39,7 +48,7 @@ function create_post(post, csrftoken) {
         .then(result => {
             console.log("Result from create_post:", result);
             // After the post is successfully created, fetch the updated list of posts
-            fetch_posts_and_display();  // Fetch and display the latest posts
+            fetch_posts_and_display(current_page);  // Fetch and display the latest posts
         })
         .catch(error => {
             console.error("Error during create_post:", error);
@@ -47,24 +56,54 @@ function create_post(post, csrftoken) {
         document.querySelector('#post_content').value = "";
 }
 
-function fetch_posts() {
-    return fetch('/load_posts_following_page', {method:"POST"})
+function fetch_posts(page_number) {
+    return fetch('/load_posts_following_page', {method:"POST",
+        body: JSON.stringify({
+            paginated: true,
+            page_number: page_number
+          }),
+    })
     .then(console.log("Posts:"))
     .then(response => response.json())
     .then(result => {
         // Print result
         console.log(result); 
+
+        current_page = result.current_page;
+
+        if (result.last_page) {
+            document.getElementById('next').parentElement.classList.add("disabled");
+        } else {
+            document.getElementById('next').parentElement.classList.remove("disabled");
+        }
     });
 }
 
 
-function fetch_posts_and_display() {
-    fetch('/load_posts_following_page', {method:"POST"})
+function fetch_posts_and_display(page_number) {
+    fetch('/load_posts_following_page', {method:"POST",
+        body: JSON.stringify({
+            paginated: true,
+            page_number: page_number
+          }),
+    })
     .then(response => response.json())
     .then(result => {
         // Print result
         console.log("result:");
         console.log(result); 
+
+
+        current_page = result.current_page;
+
+        if (result.last_page) {
+            document.getElementById('next').parentElement.classList.add("disabled");
+        } else {
+            document.getElementById('next').parentElement.classList.remove("disabled");
+        }
+
+
+
         display_posts(result.posts);
     });
 }
@@ -83,4 +122,22 @@ function display_posts(posts) {
         '</div><div> Likes: ' + post.likes + '</div></div><br>';
 
     });
+}
+
+
+function load_posts_next(element) {
+    //document.querySelector.getElementById("prev").parentElement.classList.remove("disabled");
+    document.getElementById('prev').parentElement.classList.remove("disabled");
+    fetch_posts_and_display(current_page + 1);
+
+}
+
+
+function load_posts_prev(element) {
+    if (current_page < 3) {
+        current_page = 1;
+        document.getElementById('prev').parentElement.classList.add("disabled");
+    }
+    console.log("current page: " + current_page); 
+    fetch_posts_and_display(current_page - 1);
 }
