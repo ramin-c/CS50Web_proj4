@@ -390,14 +390,10 @@ def like_post(request, post_id):
             Like_obj = Like.objects.get(liked_by=User.objects.get(username=request_data['username']), 
                                        post_liked=Post.objects.get(id=post_id))
             Like_obj.delete()
-            print(Like_obj)
         except:
-            print("Object does not exist yet.")
             Like_obj = Like.objects.create(liked_by=User.objects.get(username=request_data['username']), 
                                        post_liked=Post.objects.get(id=post_id))
             Like_obj.save()
-            print(Like_obj.liked_by)
-            print(Like_obj.post_liked)
 
         updated_likes = Like.objects.filter(post_liked=Post.objects.get(id=post_id)).count()
 

@@ -145,7 +145,7 @@ function display_posts(posts) {
                 <div> By: <a href="/profile/${post.creator}">${post.creator}</a> 
                     on ${post.date.substring(0, 10)}, ${post.date.substring(11, 16)}
                 </div>
-                <div><a href="#" id="${post.id}-like" onclick="like(${post.id})"> Likes: ${post.likes}</a>${edited}</div>
+                <div><a href="#" id="${post.id}-like" onclick="like(event, ${post.id})"> Likes: ${post.likes}</a>${edited}</div>
             </div>
             <br>`;
         } else {
@@ -153,7 +153,7 @@ function display_posts(posts) {
             '<div><h4>' + post.content + '</h4><div> By: <a href="/profile/' + post.creator + '">' +
             post.creator + '</a> on ' + post.date.substring(0,10) + 
             ', ' + post.date.substring(11,16) + 
-            '</div><a href="#" id="' + post.id + '-like"onclick="like(' + post.id + ')"> Likes: ' + post.likes + '</a>' + edited + '</div></div><br>';
+            '</div><a href="#" id="' + post.id + '-like"onclick="like(event, ' + post.id + ')"> Likes: ' + post.likes + '</a>' + edited + '</div></div><br>';
         }
         
     });
@@ -240,7 +240,9 @@ function load_posts_prev(element) {
 }
 
 
-function like(post_id) {
+function like(event, post_id) {
+
+    event.preventDefault();
 
     console.log("liking post: " + post_id);
 
