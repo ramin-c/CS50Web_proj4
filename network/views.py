@@ -162,11 +162,22 @@ def load_posts(request):
     
     else:
         posts_paginated = Paginator(posts, 10)
-        posts_paginated.get_page(request_data['page_number'])
+        print(f"request: posts for page {request_data['page_number']}")
+        last_page = False
 
-        post_as_serializable_objects = posts_paginated.page(request_data['page_number']).object_list
+        if request_data['page_number'] > posts_paginated.num_pages:
+            page_to_get = posts_paginated.num_pages
+        elif request_data['page_number'] < 1:
+            page_to_get = 1
+        else:
+            page_to_get = request_data['page_number']
 
-        return JsonResponse({"posts": post_as_serializable_objects}, status=200)
+        if page_to_get == posts_paginated.num_pages:
+            last_page = True
+            
+        paginated_posts_as_serializable_objects = posts_paginated.page(page_to_get).object_list
+
+        return JsonResponse({"posts": paginated_posts_as_serializable_objects, "current_page": page_to_get, "last_page": last_page}, status=200)
 
 
 @csrf_exempt

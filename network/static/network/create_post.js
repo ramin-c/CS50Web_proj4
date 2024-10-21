@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     current_page = 1
 
+    if (current_page == 1) {
+        document.getElementById('prev').parentElement.classList.add("disabled");
+    }
+
     let posts = fetch_posts_and_display(current_page);
 
   
@@ -69,6 +73,13 @@ function fetch_posts(page_number) {
     .then(result => {
         // Print result
         console.log(result); 
+        current_page = result.current_page;
+
+        if (result.last_page) {
+            document.getElementById('next').parentElement.classList.add("disabled");
+        } else {
+            document.getElementById('next').parentElement.classList.remove("disabled");
+        }
     });
 }
 
@@ -84,6 +95,15 @@ function fetch_posts_and_display(page_number) {
         // Print result
         console.log("result:");
         console.log(result); 
+        current_page = result.current_page;
+
+        if (result.last_page) {
+            document.getElementById('next').parentElement.classList.add("disabled");
+        } else {
+            document.getElementById('next').parentElement.classList.remove("disabled");
+        }
+
+
         display_posts(result.posts);
     });
 }
@@ -197,4 +217,22 @@ function turn_into_textarea(element, post_content, post_id) {
 
     console.log("turn this into textarea");
     element.parentNode.parentNode.replaceWith(ul_with_textarea);
+}
+
+
+function load_posts_next(element) {
+    //document.querySelector.getElementById("prev").parentElement.classList.remove("disabled");
+    document.getElementById('prev').parentElement.classList.remove("disabled");
+    fetch_posts_and_display(current_page + 1);
+
+}
+
+
+function load_posts_prev(element) {
+    if (current_page < 3) {
+        current_page = 1;
+        document.getElementById('prev').parentElement.classList.add("disabled");
+    }
+    console.log("current page: " + current_page); 
+    fetch_posts_and_display(current_page - 1);
 }
