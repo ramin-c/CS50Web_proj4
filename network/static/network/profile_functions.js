@@ -70,7 +70,7 @@ function fetch_profile_posts(profile) {
 
 function display_posts(posts) {
     posts_div = document.querySelector('#posts_div');
-    posts_div.innerHTML = "";
+    posts_div.textContent = "";
 
     console.log("display_posts:");
     console.log(posts);

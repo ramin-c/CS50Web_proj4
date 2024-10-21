@@ -8,6 +8,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+import bleach
 
 
 
@@ -156,6 +157,7 @@ def load_posts(request):
     for element in posts:
         element['likes'] = len(Like.objects.filter(post_liked=element['id']))
         element['creator'] = User.objects.get(pk=element['creator_id']).username
+        element['content'] = bleach.clean(element['content'])
         
     if not request_data['paginated']:
 
@@ -198,6 +200,7 @@ def load_posts_following_page(request):
     for post in posts:
         post['likes'] = len(Like.objects.filter(post_liked=post['id']))
         post['creator'] = User.objects.get(pk=post['creator_id']).username
+        post['content'] = bleach.clean(post['content'])
         print(post)
         print(f"creator: {post['creator']}")
         if post['creator'] in following_these_users:
@@ -306,6 +309,7 @@ def get_profiles_posts(request, profile):
     for post in posts:
         post['likes'] = len(Like.objects.filter(post_liked=post['id']))
         post['creator'] = User.objects.get(pk=post['creator_id']).username
+        post['content'] = bleach.clean(post['content'])
     return JsonResponse({"posts": posts}, status=200)
 
 
