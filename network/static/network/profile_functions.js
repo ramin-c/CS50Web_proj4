@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
 
-    let posts = fetch_profile_posts(profilename);
+    let posts = fetch_profile_posts(profilename, current_page);
     display_posts(posts);
 
     fetch_following_data(profilename);
@@ -54,15 +54,26 @@ function fetch_following_data(profile) {
 }
 
 
-function fetch_profile_posts(profile) {
+function fetch_profile_posts(profile, get_page) {
     return fetch('/get_users_posts/' + profile, {method:"POST",
+        body: JSON.stringify({
+        paginated: true,
+        page_number: get_page,
         profile: profile
-    })
+      }),})
     .then(response => response.json())
     .then(result => {
         // Print result
         console.log("result profile posts:");
         console.log(result); 
+        current_page = result.current_page;
+
+        if (result.last_page) {
+            document.getElementById('next').parentElement.classList.add("disabled");
+        } else {
+            document.getElementById('next').parentElement.classList.remove("disabled");
+        }
+
         display_posts(result.posts, username, csrftoken);
     });
 }
@@ -173,6 +184,14 @@ function update_post(post_id, post_content) {
     }).then(response => response.json())
     .then(result => {
         // Print result
+        current_page = result.current_page;
+
+        if (result.last_page) {
+            document.getElementById('next').parentElement.classList.add("disabled");
+        } else {
+            document.getElementById('next').parentElement.classList.remove("disabled");
+        }
+
         console.log("result profile posts:");
         console.log(result); 
         display_posts(result.posts, username, csrftoken);
@@ -211,9 +230,9 @@ function load_posts_next(event, element) {
 
     event.preventDefault();
 
-    //document.querySelector.getElementById("prev").parentElement.classList.remove("disabled");
+    console.log("current_page + 1 :" + (current_page + 1));
     document.getElementById('prev').parentElement.classList.remove("disabled");
-    fetch_posts_and_display(current_page + 1);
+    fetch_profile_posts(profilename, (current_page + 1));
 
 }
 
@@ -227,7 +246,7 @@ function load_posts_prev(event, element) {
         document.getElementById('prev').parentElement.classList.add("disabled");
     }
     console.log("current page: " + current_page); 
-    fetch_posts_and_display(current_page - 1);
+    fetch_profile_posts(profilename, (current_page - 1));
 }
 
 

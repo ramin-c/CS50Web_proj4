@@ -68,7 +68,7 @@ function fetch_posts(page_number) {
     return fetch('/load_posts_following_page', {method:"POST",
         body: JSON.stringify({
             paginated: true,
-            page_number: page_number
+            page_number: current_page
           }),
     })
     .then(console.log("Posts:"))
@@ -92,7 +92,7 @@ function fetch_posts_and_display(page_number) {
     fetch('/load_posts_following_page', {method:"POST",
         body: JSON.stringify({
             paginated: true,
-            page_number: page_number
+            page_number: current_page
           }),
     })
     .then(response => response.json())

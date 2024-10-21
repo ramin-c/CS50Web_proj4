@@ -300,6 +300,11 @@ def user_profile(request, profile):
 def get_profiles_posts(request, profile):
 
     try:
+        request_data = json.loads(request.body)
+    except Exception as e:
+        print(e)
+
+    try:
         profile = User.objects.get(username=profile)
     except IntegrityError:
         return render(request, "network/register.html", {
@@ -310,7 +315,33 @@ def get_profiles_posts(request, profile):
         post['likes'] = len(Like.objects.filter(post_liked=post['id']))
         post['creator'] = User.objects.get(pk=post['creator_id']).username
         post['content'] = bleach.clean(post['content'])
-    return JsonResponse({"posts": posts}, status=200)
+
+
+    try:
+        if not request_data['paginated']:
+            return JsonResponse({"posts": posts}, status=200)
+    except Exception as e:
+        print(e)
+    
+    posts_paginated = Paginator(posts, 10)
+    print(f"request: posts for page {request_data['page_number']}")
+    last_page = False
+
+    if request_data['page_number'] > posts_paginated.num_pages:
+        page_to_get = posts_paginated.num_pages
+    elif request_data['page_number'] < 1:
+        page_to_get = 1
+    else:
+        page_to_get = request_data['page_number']
+
+    print(f"num_pages: {posts_paginated.num_pages}")
+
+    if page_to_get == posts_paginated.num_pages:
+        last_page = True
+        
+    paginated_posts_as_serializable_objects = posts_paginated.page(page_to_get).object_list
+
+    return JsonResponse({"posts": paginated_posts_as_serializable_objects, "current_page": page_to_get, "last_page": last_page}, status=200)
 
 
 @csrf_exempt
