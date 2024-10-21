@@ -1,9 +1,17 @@
 let current_page;
+let csrftoken;
+let username;
+let profilename;
+
 
 
 document.addEventListener('DOMContentLoaded', function() {
 
     current_page = 1
+
+    username = current_username;
+    profilename = PROFILE_NAME;
+    csrftoken = CSRF_TOKEN;
 
     if (current_page == 1) {
         document.getElementById('prev').parentElement.classList.add("disabled");
@@ -113,13 +121,19 @@ function display_posts(posts) {
     posts_div = document.querySelector('#posts_div');
     posts_div.innerHTML = "";
 
+    let edited = "";
+
     posts.forEach(post => {
+
+        if (post.edited == true) {
+            edited = "<span>. (Edited post)</span>";
+        }
         
         posts_div.innerHTML = posts_div.innerHTML +     
         '<div><h4>' + post.content + '</h4><div> By: <a href="/profile/' + post.creator + '">' +
         post.creator + '</a> on ' + post.date.substring(0,10) + 
         ', ' + post.date.substring(11,16) + 
-        '</div><div> Likes: ' + post.likes + '</div></div><br>';
+        '</div><a href="#" id="' + post.id + '-like"onclick="like(' + post.id + ')"> Likes: ' + post.likes + '</a>' + edited + '</div></div><br>';
 
     });
 }
@@ -140,4 +154,27 @@ function load_posts_prev(element) {
     }
     console.log("current page: " + current_page); 
     fetch_posts_and_display(current_page - 1);
+}
+
+
+function like(post_id) {
+
+    console.log("liking post: " + post_id);
+
+    fetch('/like_post/' + post_id, {
+        method: 'POST',
+          body: JSON.stringify({
+            post_id: post_id,
+            username: username
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken  // Include the CSRF token in the headers
+          }
+    }).then(response =>response.json())
+    .then(result => {
+        console.log("like set to: " + result.new_likes);
+        elementValues = document.getElementById(post_id + "-like").innerHTML.split(' ');
+        document.getElementById(post_id + "-like").innerHTML = "Likes: " + result.new_likes;
+    });
 }
